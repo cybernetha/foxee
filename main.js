@@ -21,24 +21,24 @@ const db = getDatabase(app);
 const messagesRef = ref(db, "messages");
 
 // Send a message
-function sendMessage() {
+// Send a message
+window.sendMessage = function () {
   const messageInput = document.getElementById("message");
   const message = messageInput.value;
 
   if (message.trim() !== "") {
-    push(messagesRef, { text: message });
-    messageInput.value = "";
+    push(messagesRef, {
+      text: message,
+      timestamp: Date.now(),
+    })
+      .then(() => {
+        console.log("Message sent successfully");
+        messageInput.value = ""; // Clear input field
+      })
+      .catch((error) => {
+        console.error("Error sending message: ", error);
+      });
+  } else {
+    console.log("Message is empty");
   }
-}
-
-// Display messages
-onChildAdded(messagesRef, (snapshot) => {
-  const message = snapshot.val();
-  const messagesDiv = document.getElementById("messages");
-
-  const messageDiv = document.createElement("div");
-  messageDiv.textContent = message.text;
-  messagesDiv.appendChild(messageDiv);
-
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-});
+};
