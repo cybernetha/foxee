@@ -1,7 +1,7 @@
 // Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-import { getDatabase, ref, push, onChildAdded, set, remove, get } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, set, remove, get, onValue } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -80,6 +80,7 @@ onChildAdded(messagesRef, (snapshot) => {
     const username = userSnapshot.val()?.username || "Anonymous";
 
     const messageDiv = document.createElement("div");
+    messageDiv.id = snapshot.key; // Store the snapshot key for later use
     const date = new Date(message.timestamp);
     messageDiv.textContent = `${username} (${date.toLocaleString()}): ${message.text}`;
 
@@ -92,6 +93,7 @@ onChildAdded(messagesRef, (snapshot) => {
         remove(ref(db, `messages/${snapshot.key}`))
           .then(() => {
             console.log("Message deleted successfully");
+            messageDiv.remove(); // Remove the message from the UI immediately
           })
           .catch((error) => {
             console.error("Error deleting message:", error);
@@ -118,14 +120,21 @@ document.getElementById("message").addEventListener("input", () => {
   }, 1000);
 });
 
-// Show typing indicator
+// Show typing indicator for other users
 const typingStatusDiv = document.getElementById("typing-status");
-onChildAdded(typingRef, (snapshot) => {
-  const typingUserId = snapshot.key;
-  const isTyping = snapshot.val();
+onValue(typingRef, (snapshot) => {
+  const typingStatuses = snapshot.val();
+  let typingUsers = [];
 
-  if (isTyping && typingUserId !== auth.currentUser.uid) {
-    typingStatusDiv.textContent = `${typingUserId} is typing...`;
+  // Check which users are typing
+  for (let userId in typingStatuses) {
+    if (typingStatuses[userId] && userId !== auth.currentUser.uid) {
+      typingUsers.push(userId);
+    }
+  }
+
+  if (typingUsers.length > 0) {
+    typingStatusDiv.textContent = `${typingUsers.join(", ")} is typing...`;
   } else {
     typingStatusDiv.textContent = "";
   }
