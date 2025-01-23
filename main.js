@@ -19,9 +19,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// Realtime Database reference for messages
+// Realtime Database reference for messages and users
 const messagesRef = ref(db, "messages");
-const typingRef = ref(db, "typing");
 const usersRef = ref(db, "users");
 
 // Authenticate user anonymously
@@ -87,8 +86,16 @@ onChildAdded(messagesRef, (snapshot) => {
     if (message.uid === auth.currentUser.uid) {
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "Delete";
+      deleteButton.style.fontSize = "12px";  // Reduced font size for the button
+      deleteButton.style.padding = "3px 6px"; // Smaller padding to make it fit
       deleteButton.onclick = () => {
-        remove(ref(db, `messages/${snapshot.key}`));
+        remove(ref(db, `messages/${snapshot.key}`))
+          .then(() => {
+            console.log("Message deleted successfully");
+          })
+          .catch((error) => {
+            console.error("Error deleting message:", error);
+          });
       };
       messageDiv.appendChild(deleteButton);
     }
@@ -113,7 +120,7 @@ document.getElementById("message").addEventListener("input", () => {
 
 // Show typing indicator
 const typingStatusDiv = document.getElementById("typing-status");
-onChildAdded(typingRef, (snapshot) => {
+onChildAdded(ref(db, "typing"), (snapshot) => {
   const typingUserId = snapshot.key;
   const isTyping = snapshot.val();
 
