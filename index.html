@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with Friends</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+    #chat {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      background: #fff;
+    }
+    #messages {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    #messages div {
+      margin-bottom: 5px;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+    }
+    button {
+      padding: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <h2>Chat Room</h2>
+    <div id="messages"></div>
+    <input type="text" id="message" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
