@@ -37,10 +37,10 @@ button {
 }
 
 button.delete-btn {
-  padding: 3px 6px; /* Smaller button for delete */
-  background-color: #dc3545; /* Red background for delete */
-  font-size: 12px; /* Smaller text for delete button */
-  margin-left: 10px; /* Space between message and delete button */
+  padding: 3px 6px;
+  background-color: #dc3545;
+  font-size: 12px;
+  margin-left: 10px;
 }
 
 button.delete-btn:hover {
