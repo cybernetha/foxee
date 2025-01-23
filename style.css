@@ -46,3 +46,8 @@ button.delete-btn {
 button.delete-btn:hover {
   background-color: #c82333;
 }
+
+#typing-status {
+  font-style: italic;
+  color: gray;
+}
