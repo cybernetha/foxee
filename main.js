@@ -1,7 +1,7 @@
 // Import Firebase SDKs
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-import { getDatabase, ref, push, onChildAdded, set, remove, get } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+import { getDatabase, ref, push, onChildAdded, set, remove, get } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -21,6 +21,7 @@ const auth = getAuth(app);
 
 // Realtime Database reference for messages and users
 const messagesRef = ref(db, "messages");
+const typingRef = ref(db, "typing");
 const usersRef = ref(db, "users");
 
 // Authenticate user anonymously
@@ -119,7 +120,7 @@ document.getElementById("message").addEventListener("input", () => {
 
 // Show typing indicator
 const typingStatusDiv = document.getElementById("typing-status");
-onChildAdded(ref(db, "typing"), (snapshot) => {
+onChildAdded(typingRef, (snapshot) => {
   const typingUserId = snapshot.key;
   const isTyping = snapshot.val();
 
