@@ -1,25 +1,11 @@
-// Import Firebase SDKs
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
 import { getDatabase, ref, push, onChildAdded, set, remove, get, onValue } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyC8KbWGMA24BIgt1ud274Psyphm2Mf6COQ",
-  authDomain: "chat-foxee.firebaseapp.com",
-  databaseURL: "https://chat-foxee-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "chat-foxee",
-  storageBucket: "chat-foxee.firebasestorage.app",
-  messagingSenderId: "531579135295",
-  appId: "1:531579135295:web:70b333e2bfdcecf4229f8a"
-};
+// Access Firebase instances from the global scope
+const auth = window.firebaseAuth;
+const db = window.firebaseDB;
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
-
-// Realtime Database reference for messages and users
+// Realtime Database references
 const messagesRef = ref(db, "messages");
 const typingRef = ref(db, "typing");
 const usersRef = ref(db, "users");
@@ -69,73 +55,62 @@ window.sendMessage = function () {
   }
 };
 
-// Display messages in the chat
+// Display messages
 onChildAdded(messagesRef, (snapshot) => {
   const message = snapshot.val();
   const messagesDiv = document.getElementById("messages");
 
-  // Get the username of the sender
   const userRef = ref(db, `users/${message.uid}`);
   get(userRef).then((userSnapshot) => {
     const username = userSnapshot.val()?.username || "Anonymous";
 
     const messageDiv = document.createElement("div");
-    messageDiv.id = snapshot.key; // Store the snapshot key for later use
+    messageDiv.id = snapshot.key;
     const date = new Date(message.timestamp);
     messageDiv.textContent = `${username} (${date.toLocaleString()}): ${message.text}`;
 
-    // Add delete button for the message owner
+    // Add delete button
     if (message.uid === auth.currentUser.uid) {
       const deleteButton = document.createElement("button");
-      deleteButton.classList.add("delete-btn"); // Add styling for the delete button
+      deleteButton.classList.add("delete-btn");
       deleteButton.textContent = "Delete";
       deleteButton.onclick = () => {
         remove(ref(db, `messages/${snapshot.key}`))
           .then(() => {
             console.log("Message deleted successfully");
-            messageDiv.remove(); // Remove the message from the UI immediately
+            messageDiv.remove();
           })
-          .catch((error) => {
-            console.error("Error deleting message:", error);
-          });
+          .catch((error) => console.error("Error deleting message:", error));
       };
       messageDiv.appendChild(deleteButton);
     }
 
     messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto scroll to the latest message
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   });
 });
 
-// Typing indicator functionality
+// Typing indicator
 let typingTimeout;
 document.getElementById("message").addEventListener("input", () => {
-  const userTypingRef = ref(db, "typing/" + auth.currentUser.uid);
+  const userTypingRef = ref(db, `typing/${auth.currentUser.uid}`);
   set(userTypingRef, true);
 
-  // Clear typing status after 1 second of inactivity
   clearTimeout(typingTimeout);
   typingTimeout = setTimeout(() => {
     set(userTypingRef, false);
   }, 1000);
 });
 
-// Show typing indicator for other users
 const typingStatusDiv = document.getElementById("typing-status");
 onValue(typingRef, (snapshot) => {
   const typingStatuses = snapshot.val();
-  let typingUsers = [];
+  const typingUsers = Object.keys(typingStatuses || {}).filter(
+    (uid) => typingStatuses[uid] && uid !== auth.currentUser.uid
+  );
 
-  // Check which users are typing
-  for (let userId in typingStatuses) {
-    if (typingStatuses[userId] && userId !== auth.currentUser.uid) {
-      typingUsers.push(userId);
-    }
-  }
-
-  if (typingUsers.length > 0) {
-    typingStatusDiv.textContent = `${typingUsers.join(", ")} is typing...`;
-  } else {
-    typingStatusDiv.textContent = "";
-  }
+  typingStatusDiv.textContent =
+    typingUsers.length > 0
+      ? `${typingUsers.join(", ")} is typing...`
+      : "";
 });
