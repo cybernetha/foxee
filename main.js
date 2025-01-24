@@ -1,5 +1,5 @@
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-import { getDatabase, ref, push, onChildAdded, set, remove, get, onValue } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, set, get } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
 // Access Firebase instances
 const auth = window.firebaseAuth;
@@ -7,10 +7,9 @@ const db = window.firebaseDB;
 
 // Database References
 const messagesRef = ref(db, "messages");
-const typingRef = ref(db, "typing");
 const usersRef = ref(db, "users");
 
-// Anonymous Authentication
+// Authenticate user anonymously
 signInAnonymously(auth)
   .then(() => console.log("Signed in anonymously"))
   .catch((error) => console.error("Authentication error:", error.message));
@@ -28,16 +27,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Change Username
-window.changeUsername = function () {
-  const newUsername = prompt("Enter your new username:");
-  if (newUsername && newUsername.trim() !== "") {
-    set(ref(db, `users/${auth.currentUser.uid}`), { username: newUsername.trim() });
-    console.log("Username updated successfully");
-  }
-};
-
-// Send Message
+// Send a message
 window.sendMessage = function () {
   const messageInput = document.getElementById("message");
   const message = messageInput.value.trim();
@@ -53,14 +43,14 @@ window.sendMessage = function () {
   }
 };
 
-// Send Attachments
+// Send attachment
 window.sendAttachment = function () {
   const fileInput = document.getElementById("file");
   const file = fileInput.files[0];
 
   if (file) {
     const reader = new FileReader();
-    reader.onload = function (event) {
+    reader.onload = (event) => {
       push(messagesRef, {
         text: event.target.result,
         timestamp: Date.now(),
@@ -74,7 +64,7 @@ window.sendAttachment = function () {
   }
 };
 
-// Display Messages
+// Display messages
 onChildAdded(messagesRef, (snapshot) => {
   const message = snapshot.val();
   const messagesDiv = document.getElementById("messages");
@@ -89,12 +79,16 @@ onChildAdded(messagesRef, (snapshot) => {
         message.fileType.startsWith("image/") ? "img" : "video"
       );
       media.src = message.text;
-      media.controls = true;
-      media.style.maxWidth = "100%";
+      media.classList.add("message-attachment");
       messageDiv.appendChild(media);
     } else {
       messageDiv.textContent = `${username}: ${message.text}`;
     }
+
+    messageDiv.classList.add("message");
+    messageDiv.classList.add(
+      message.uid === auth.currentUser.uid ? "sent" : "received"
+    );
 
     messagesDiv.appendChild(messageDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
