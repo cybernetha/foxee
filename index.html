@@ -5,33 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Foxee</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js"></script>
-
-  <!-- Firebase Initialization -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC8KbWGMA24BIgt1ud274Psyphm2Mf6COQ",
-      authDomain: "chat-foxee.firebaseapp.com",
-      databaseURL: "https://chat-foxee-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "chat-foxee",
-      storageBucket: "chat-foxee.firebasestorage.app",
-      messagingSenderId: "531579135295",
-      appId: "1:531579135295:web:75c69f2b8aa21c1e229f8a"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    // Make Firebase instances globally available
-    window.firebaseAuth = auth;
-    window.firebaseDB = db;
-  </script>
 </head>
 <body>
   <div id="chat-container">
@@ -57,6 +30,34 @@
       <button id="send-button" onclick="sendMessage()">Send</button>
     </footer>
   </div>
-  <script src="main.js"></script>
+
+  <!-- Firebase Configuration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8KbWGMA24BIgt1ud274Psyphm2Mf6COQ",
+      authDomain: "chat-foxee.firebaseapp.com",
+      databaseURL: "https://chat-foxee-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "chat-foxee",
+      storageBucket: "chat-foxee.firebasestorage.app",
+      messagingSenderId: "531579135295",
+      appId: "1:531579135295:web:75c69f2b8aa21c1e229f8a"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    // Make Firebase globally available
+    window.firebaseApp = app;
+    window.firebaseAuth = getAuth(app);
+    window.firebaseDB = getDatabase(app);
+  </script>
+
+  <!-- Main JavaScript -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>
