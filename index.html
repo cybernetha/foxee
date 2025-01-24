@@ -26,18 +26,17 @@
         <img src="upload-icon.png" alt="Upload">
       </button>
       <input type="file" id="file" style="display: none;" onchange="sendAttachment()" />
-      <textarea id="message" placeholder="Type a message, GIF, or paste a sticker"></textarea>
+      <textarea id="message" placeholder="Type a message"></textarea>
       <button id="send-button" onclick="sendMessage()">Send</button>
     </footer>
   </div>
 
-  <!-- Firebase Configuration -->
+  <!-- Firebase Setup -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
     import { getAuth } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
     import { getDatabase } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
-    // Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC8KbWGMA24BIgt1ud274Psyphm2Mf6COQ",
       authDomain: "chat-foxee.firebaseapp.com",
@@ -48,16 +47,14 @@
       appId: "1:531579135295:web:75c69f2b8aa21c1e229f8a"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    // Make Firebase globally available
-    window.firebaseApp = app;
-    window.firebaseAuth = getAuth(app);
-    window.firebaseDB = getDatabase(app);
+    window.firebaseAuth = auth;
+    window.firebaseDB = db;
   </script>
 
-  <!-- Main JavaScript -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
