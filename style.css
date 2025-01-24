@@ -83,6 +83,12 @@ img.message-attachment {
   border-radius: 8px;
 }
 
+.message-details {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
 /* Delete Button */
 .delete-btn {
   background-color: #ff5c5c;
