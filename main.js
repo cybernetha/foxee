@@ -4,7 +4,6 @@ import { getDatabase, ref, push, onChildAdded, set, get } from "https://www.gsta
 const auth = window.firebaseAuth;
 const db = window.firebaseDB;
 
-// Database References
 const messagesRef = ref(db, "messages");
 const usersRef = ref(db, "users");
 
