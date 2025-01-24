@@ -15,7 +15,7 @@ signInAnonymously(auth)
   .then(() => console.log("Signed in anonymously"))
   .catch((error) => console.error("Authentication error:", error.message));
 
-// Handle username for first-time users
+// Check if username exists, if not, prompt for it
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const userRef = ref(db, `users/${user.uid}`);
@@ -30,10 +30,10 @@ onAuthStateChanged(auth, (user) => {
 
 // Change username
 window.changeUsername = function () {
-  const username = prompt("Enter your new username:");
-  if (username && username.trim() !== "") {
+  const newUsername = prompt("Enter your new username:");
+  if (newUsername && newUsername.trim() !== "") {
     const userRef = ref(db, `users/${auth.currentUser.uid}`);
-    set(userRef, { username: username.trim() })
+    set(userRef, { username: newUsername.trim() })
       .then(() => console.log("Username updated successfully!"))
       .catch((error) => console.error("Error updating username:", error.message));
   } else {
@@ -41,7 +41,7 @@ window.changeUsername = function () {
   }
 };
 
-// Send a text message
+// Send a message
 window.sendMessage = function () {
   const messageInput = document.getElementById("message");
   const message = messageInput.value;
@@ -63,7 +63,7 @@ window.sendMessage = function () {
   }
 };
 
-// Send an attachment (photo, sticker, or video)
+// Send an attachment (photo, sticker, video)
 window.sendAttachment = function () {
   const fileInput = document.getElementById("file");
   const file = fileInput.files[0];
@@ -112,7 +112,7 @@ onChildAdded(messagesRef, (snapshot) => {
       messageDiv.textContent = `${username} (${date.toLocaleString()}): ${message.text}`;
     }
 
-    // Add delete button for message owner
+    // Add delete button
     if (message.uid === auth.currentUser.uid) {
       const deleteButton = document.createElement("button");
       deleteButton.classList.add("delete-btn");
@@ -129,7 +129,7 @@ onChildAdded(messagesRef, (snapshot) => {
     }
 
     messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   });
 });
 
@@ -140,7 +140,9 @@ document.getElementById("message").addEventListener("input", () => {
   set(userTypingRef, true);
 
   clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(() => set(userTypingRef, false), 1000);
+  typingTimeout = setTimeout(() => {
+    set(userTypingRef, false);
+  }, 1000);
 });
 
 // Display typing indicator
