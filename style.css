@@ -28,11 +28,28 @@ header {
   padding: 10px 15px;
   color: white;
   text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 header h1 {
   margin: 0;
   font-size: 20px;
+}
+
+#change-username {
+  background-color: #ffffff;
+  color: #128c7e;
+  border: none;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#change-username:hover {
+  background-color: #f0f0f0;
 }
 
 /* Messages Section */
