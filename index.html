@@ -10,7 +10,6 @@
     import { getAuth } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
     import { getDatabase } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
-    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC8KbWGMA24BIgt1ud274Psyphm2Mf6COQ",
       authDomain: "chat-foxee.firebaseapp.com",
@@ -34,19 +33,18 @@
 <body>
   <div id="chat-container">
     <header>
-      <h1>Welcome To Fight Club</h1>
+      <h1>Welcome to Fight Club</h1>
       <button id="change-username" onclick="changeUsername()">Change Username</button>
     </header>
     <main id="messages-container">
       <div id="messages"></div>
-      <div id="typing-status"></div>
     </main>
     <footer id="input-container">
       <button id="upload-button" onclick="document.getElementById('file').click()">
         <img src="upload-icon.png" alt="Upload">
       </button>
       <input type="file" id="file" style="display: none;" onchange="sendAttachment()" />
-      <textarea id="message" placeholder="Type a message, GIF, or sticker URL"></textarea>
+      <textarea id="message" placeholder="Type a message, GIF, or paste a sticker"></textarea>
       <button id="send-button" onclick="sendMessage()">Send</button>
     </footer>
   </div>
