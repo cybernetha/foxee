@@ -126,6 +126,8 @@ img.message-attachment {
   border: 1px solid #ddd;
   border-radius: 20px;
   margin-right: 10px;
+  resize: none;
+  height: 40px;
 }
 
 #send-button {
