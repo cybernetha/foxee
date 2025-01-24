@@ -6,7 +6,6 @@
   <title>Chat Foxee</title>
   <link rel="stylesheet" href="style.css">
   <script type="module">
-    // Import Firebase SDK and initialize app
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
     import { getAuth } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
     import { getDatabase } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
@@ -36,11 +35,10 @@
   <div id="chat-container">
     <header>
       <h1>Chat Foxee</h1>
+      <button id="change-username" onclick="changeUsername()">Change Username</button>
     </header>
     <main id="messages-container">
-      <!-- Chat messages will appear here -->
       <div id="messages"></div>
-      <!-- Typing indicator -->
       <div id="typing-status"></div>
     </main>
     <footer id="input-container">
@@ -48,7 +46,7 @@
         <img src="upload-icon.png" alt="Upload">
       </button>
       <input type="file" id="file" style="display: none;" onchange="sendAttachment()" />
-      <input type="text" id="message" placeholder="Type a message" />
+      <input type="text" id="message" placeholder="Type a message, GIF, or sticker URL" />
       <button id="send-button" onclick="sendMessage()">Send</button>
     </footer>
   </div>
