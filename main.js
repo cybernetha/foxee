@@ -1,17 +1,19 @@
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
 import { getDatabase, ref, push, onChildAdded, remove, set, get } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
-const auth = window.firebaseAuth;
-const db = window.firebaseDB;
+const auth = getAuth();
+const db = getDatabase();
 
 // Refs
 const messagesRef = ref(db, "messages");
 const usersRef = ref(db, "users");
 
-// Authenticate
-signInAnonymously(auth).catch(console.error);
+// Authenticate user anonymously
+signInAnonymously(auth)
+  .then(() => console.log("Signed in anonymously"))
+  .catch((error) => console.error("Authentication error:", error.message));
 
-// Handle username
+// Handle username on auth
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const userRef = ref(db, `users/${user.uid}`);
@@ -30,7 +32,7 @@ window.changeUsername = function () {
   set(ref(db, `users/${auth.currentUser.uid}`), { username });
 };
 
-// Send message
+// Send a message
 window.sendMessage = function () {
   const messageInput = document.getElementById("message");
   const text = messageInput.value.trim();
