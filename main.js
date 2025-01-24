@@ -12,46 +12,80 @@ const usersRef = ref(db, "users");
 
 // Authenticate user anonymously
 signInAnonymously(auth)
-  .then(() => {
-    console.log("Signed in anonymously");
-  })
-  .catch((error) => {
-    console.error("Authentication error:", error.message);
-  });
+  .then(() => console.log("Signed in anonymously"))
+  .catch((error) => console.error("Authentication error:", error.message));
 
-// Check if username exists, if not, prompt for it
+// Handle username for first-time users
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const userRef = ref(db, `users/${user.uid}`);
     get(userRef).then((snapshot) => {
       if (!snapshot.exists()) {
-        const username = prompt("Enter your username:");
-        set(userRef, { username });
+        const username = prompt("Enter your username:") || "Anonymous";
+        set(userRef, { username: username.trim() });
       }
     });
   }
 });
 
-// Send message function
+// Change username
+window.changeUsername = function () {
+  const username = prompt("Enter your new username:");
+  if (username && username.trim() !== "") {
+    const userRef = ref(db, `users/${auth.currentUser.uid}`);
+    set(userRef, { username: username.trim() })
+      .then(() => console.log("Username updated successfully!"))
+      .catch((error) => console.error("Error updating username:", error.message));
+  } else {
+    console.log("Username change canceled.");
+  }
+};
+
+// Send a text message
 window.sendMessage = function () {
   const messageInput = document.getElementById("message");
   const message = messageInput.value;
 
   if (message.trim() !== "") {
     push(messagesRef, {
-      text: message,
+      text: message.trim(),
       timestamp: Date.now(),
       uid: auth.currentUser.uid,
+      type: "text",
     })
       .then(() => {
         console.log("Message sent successfully");
         messageInput.value = ""; // Clear input field
       })
-      .catch((error) => {
-        console.error("Error sending message:", error);
-      });
+      .catch((error) => console.error("Error sending message:", error.message));
   } else {
     console.log("Message is empty");
+  }
+};
+
+// Send an attachment (photo, sticker, or video)
+window.sendAttachment = function () {
+  const fileInput = document.getElementById("file");
+  const file = fileInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const fileUrl = event.target.result;
+      push(messagesRef, {
+        text: fileUrl,
+        timestamp: Date.now(),
+        uid: auth.currentUser.uid,
+        type: "attachment",
+        fileType: file.type,
+      })
+        .then(() => console.log("Attachment sent successfully"))
+        .catch((error) => console.error("Error sending attachment:", error.message));
+      fileInput.value = ""; // Clear the file input
+    };
+    reader.readAsDataURL(file);
+  } else {
+    console.log("No file selected.");
   }
 };
 
@@ -63,13 +97,22 @@ onChildAdded(messagesRef, (snapshot) => {
   const userRef = ref(db, `users/${message.uid}`);
   get(userRef).then((userSnapshot) => {
     const username = userSnapshot.val()?.username || "Anonymous";
-
     const messageDiv = document.createElement("div");
-    messageDiv.id = snapshot.key;
     const date = new Date(message.timestamp);
-    messageDiv.textContent = `${username} (${date.toLocaleString()}): ${message.text}`;
 
-    // Add delete button
+    if (message.type === "attachment") {
+      const attachment = document.createElement(
+        message.fileType.startsWith("image/") ? "img" : "video"
+      );
+      attachment.src = message.text;
+      attachment.controls = true;
+      attachment.style.maxWidth = "100%";
+      messageDiv.appendChild(attachment);
+    } else {
+      messageDiv.textContent = `${username} (${date.toLocaleString()}): ${message.text}`;
+    }
+
+    // Add delete button for message owner
     if (message.uid === auth.currentUser.uid) {
       const deleteButton = document.createElement("button");
       deleteButton.classList.add("delete-btn");
@@ -86,7 +129,7 @@ onChildAdded(messagesRef, (snapshot) => {
     }
 
     messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
   });
 });
 
@@ -97,11 +140,10 @@ document.getElementById("message").addEventListener("input", () => {
   set(userTypingRef, true);
 
   clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(() => {
-    set(userTypingRef, false);
-  }, 1000);
+  typingTimeout = setTimeout(() => set(userTypingRef, false), 1000);
 });
 
+// Display typing indicator
 const typingStatusDiv = document.getElementById("typing-status");
 onValue(typingRef, (snapshot) => {
   const typingStatuses = snapshot.val();
