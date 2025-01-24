@@ -34,20 +34,23 @@
 </head>
 <body>
   <div id="chat-container">
-    <h1>Chat Foxee</h1>
-    <div id="messages-container">
+    <header>
+      <h1>Chat Foxee</h1>
+    </header>
+    <main id="messages-container">
+      <!-- Chat messages will appear here -->
       <div id="messages"></div>
+      <!-- Typing indicator -->
       <div id="typing-status"></div>
-    </div>
-    <div id="input-container">
-      <input type="text" id="message" placeholder="Type your message here..." />
-      <button id="send-button" onclick="sendMessage()">Send</button>
-      <button id="change-username" onclick="changeUsername()">Change Username</button>
-      <input type="file" id="file" style="display: none;" onchange="sendAttachment()" />
+    </main>
+    <footer id="input-container">
       <button id="upload-button" onclick="document.getElementById('file').click()">
-        <img src="upload-icon.png" alt="Upload" />
+        <img src="upload-icon.png" alt="Upload">
       </button>
-    </div>
+      <input type="file" id="file" style="display: none;" onchange="sendAttachment()" />
+      <input type="text" id="message" placeholder="Type a message" />
+      <button id="send-button" onclick="sendMessage()">Send</button>
+    </footer>
   </div>
   <script type="module" src="main.js"></script>
 </body>
