@@ -1,69 +1,59 @@
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
 import { getDatabase, ref, push, onChildAdded, set, remove, get, onValue } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
-// Access Firebase instances from the global scope
+// Access Firebase instances
 const auth = window.firebaseAuth;
 const db = window.firebaseDB;
 
-// Realtime Database references
+// Database References
 const messagesRef = ref(db, "messages");
 const typingRef = ref(db, "typing");
 const usersRef = ref(db, "users");
 
-// Authenticate user anonymously
+// Anonymous Authentication
 signInAnonymously(auth)
   .then(() => console.log("Signed in anonymously"))
   .catch((error) => console.error("Authentication error:", error.message));
 
-// Check if username exists, if not, prompt for it
+// Handle Username
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const userRef = ref(db, `users/${user.uid}`);
     get(userRef).then((snapshot) => {
       if (!snapshot.exists()) {
         const username = prompt("Enter your username:") || "Anonymous";
-        set(userRef, { username: username.trim() });
+        set(userRef, { username });
       }
     });
   }
 });
 
-// Change username
+// Change Username
 window.changeUsername = function () {
   const newUsername = prompt("Enter your new username:");
   if (newUsername && newUsername.trim() !== "") {
-    const userRef = ref(db, `users/${auth.currentUser.uid}`);
-    set(userRef, { username: newUsername.trim() })
-      .then(() => console.log("Username updated successfully!"))
-      .catch((error) => console.error("Error updating username:", error.message));
-  } else {
-    console.log("Username change canceled.");
+    set(ref(db, `users/${auth.currentUser.uid}`), { username: newUsername.trim() });
+    console.log("Username updated successfully");
   }
 };
 
-// Send a message
+// Send Message
 window.sendMessage = function () {
   const messageInput = document.getElementById("message");
-  const message = messageInput.value;
+  const message = messageInput.value.trim();
 
-  if (message.trim() !== "") {
+  if (message) {
     push(messagesRef, {
-      text: message.trim(),
+      text: message,
       timestamp: Date.now(),
       uid: auth.currentUser.uid,
       type: "text",
-    })
-      .then(() => {
-        console.log("Message sent successfully");
-        messageInput.value = ""; // Clear input field
-      })
-      .catch((error) => console.error("Error sending message:", error.message));
-  } else {
-    console.log("Message is empty");
+    });
+    messageInput.value = "";
   }
 };
 
-// Send an attachment (photo, sticker, video)
+// Send Attachments
 window.sendAttachment = function () {
   const fileInput = document.getElementById("file");
   const file = fileInput.files[0];
@@ -71,25 +61,20 @@ window.sendAttachment = function () {
   if (file) {
     const reader = new FileReader();
     reader.onload = function (event) {
-      const fileUrl = event.target.result;
       push(messagesRef, {
-        text: fileUrl,
+        text: event.target.result,
         timestamp: Date.now(),
         uid: auth.currentUser.uid,
         type: "attachment",
         fileType: file.type,
-      })
-        .then(() => console.log("Attachment sent successfully"))
-        .catch((error) => console.error("Error sending attachment:", error.message));
-      fileInput.value = ""; // Clear the file input
+      });
+      fileInput.value = "";
     };
     reader.readAsDataURL(file);
-  } else {
-    console.log("No file selected.");
   }
 };
 
-// Display messages
+// Display Messages
 onChildAdded(messagesRef, (snapshot) => {
   const message = snapshot.val();
   const messagesDiv = document.getElementById("messages");
@@ -98,63 +83,20 @@ onChildAdded(messagesRef, (snapshot) => {
   get(userRef).then((userSnapshot) => {
     const username = userSnapshot.val()?.username || "Anonymous";
     const messageDiv = document.createElement("div");
-    const date = new Date(message.timestamp);
 
     if (message.type === "attachment") {
-      const attachment = document.createElement(
+      const media = document.createElement(
         message.fileType.startsWith("image/") ? "img" : "video"
       );
-      attachment.src = message.text;
-      attachment.controls = true;
-      attachment.style.maxWidth = "100%";
-      messageDiv.appendChild(attachment);
+      media.src = message.text;
+      media.controls = true;
+      media.style.maxWidth = "100%";
+      messageDiv.appendChild(media);
     } else {
-      messageDiv.textContent = `${username} (${date.toLocaleString()}): ${message.text}`;
-    }
-
-    // Add delete button
-    if (message.uid === auth.currentUser.uid) {
-      const deleteButton = document.createElement("button");
-      deleteButton.classList.add("delete-btn");
-      deleteButton.textContent = "Delete";
-      deleteButton.onclick = () => {
-        remove(ref(db, `messages/${snapshot.key}`))
-          .then(() => {
-            console.log("Message deleted successfully");
-            messageDiv.remove();
-          })
-          .catch((error) => console.error("Error deleting message:", error));
-      };
-      messageDiv.appendChild(deleteButton);
+      messageDiv.textContent = `${username}: ${message.text}`;
     }
 
     messagesDiv.appendChild(messageDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   });
-});
-
-// Typing indicator
-let typingTimeout;
-document.getElementById("message").addEventListener("input", () => {
-  const userTypingRef = ref(db, `typing/${auth.currentUser.uid}`);
-  set(userTypingRef, true);
-
-  clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(() => {
-    set(userTypingRef, false);
-  }, 1000);
-});
-
-// Display typing indicator
-const typingStatusDiv = document.getElementById("typing-status");
-onValue(typingRef, (snapshot) => {
-  const typingStatuses = snapshot.val();
-  const typingUsers = Object.keys(typingStatuses || {}).filter(
-    (uid) => typingStatuses[uid] && uid !== auth.currentUser.uid
-  );
-
-  typingStatusDiv.textContent =
-    typingUsers.length > 0
-      ? `${typingUsers.join(", ")} is typing...`
-      : "";
 });
