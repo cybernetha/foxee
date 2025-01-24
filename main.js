@@ -39,24 +39,41 @@ window.sendMessage = function () {
   const messageInput = document.getElementById("message");
   const message = messageInput.value.trim();
 
-  if (message.startsWith("http") && (message.endsWith(".gif") || message.endsWith(".png") || message.endsWith(".jpg"))) {
-    push(messagesRef, {
-      text: message,
-      timestamp: Date.now(),
-      uid: auth.currentUser.uid,
-      type: "attachment",
-      fileType: "image",
-    });
-  } else if (message) {
+  if (message) {
     push(messagesRef, {
       text: message,
       timestamp: Date.now(),
       uid: auth.currentUser.uid,
       type: "text",
     });
+    messageInput.value = "";
   }
-  messageInput.value = "";
 };
+
+// Handle pasted stickers or images
+document.getElementById("message").addEventListener("paste", (event) => {
+  const items = event.clipboardData.items;
+  for (const item of items) {
+    if (item.type.startsWith("image/")) {
+      const file = item.getAsFile();
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        // Upload the sticker as Base64
+        push(messagesRef, {
+          text: event.target.result,
+          timestamp: Date.now(),
+          uid: auth.currentUser.uid,
+          type: "attachment",
+          fileType: "image",
+        });
+      };
+
+      reader.readAsDataURL(file);
+      event.preventDefault();
+    }
+  }
+});
 
 // Send attachment
 window.sendAttachment = function () {
