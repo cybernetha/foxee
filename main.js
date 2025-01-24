@@ -67,21 +67,37 @@ window.sendAttachment = function () {
 
 // Display messages
 onChildAdded(messagesRef, (snapshot) => {
-  const { uid, text, type } = snapshot.val();
+  const { uid, text, type, timestamp } = snapshot.val();
   const messagesDiv = document.getElementById("messages");
 
   const messageDiv = document.createElement("div");
   messageDiv.className = uid === auth.currentUser.uid ? "message sent" : "message received";
 
+  // Message details
+  const detailsDiv = document.createElement("div");
+  detailsDiv.className = "message-details";
+
+  const userRef = ref(db, `users/${uid}`);
+  get(userRef).then((userSnapshot) => {
+    const username = userSnapshot.val()?.username || "Anonymous";
+    const time = new Date(timestamp).toLocaleString();
+    detailsDiv.textContent = `${username} • ${time}`;
+    messageDiv.appendChild(detailsDiv);
+  });
+
+  // Message content
   if (type === "attachment") {
     const img = document.createElement("img");
     img.src = text;
     img.classList.add("message-attachment");
     messageDiv.appendChild(img);
   } else {
-    messageDiv.textContent = text;
+    const contentDiv = document.createElement("div");
+    contentDiv.textContent = text;
+    messageDiv.appendChild(contentDiv);
   }
 
+  // Delete button
   if (uid === auth.currentUser.uid) {
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "delete-btn";
