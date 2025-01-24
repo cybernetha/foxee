@@ -3,43 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Foxee</title>
+  <title>Love Foxee Chat</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase SDKs -->
   <script type="module">
-    // Import Firebase SDK and initialize
+    // Import Firebase SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
 
     // Firebase configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyC8KbWGMA24BIgt1ud274Psyphm2Mf6COQ",
-      authDomain: "chat-foxee.firebaseapp.com",
-      databaseURL: "https://chat-foxee-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "chat-foxee",
-      storageBucket: "chat-foxee.firebasestorage.app",
-      messagingSenderId: "531579135295",
-      appId: "1:531579135295:web:75c69f2b8aa21c1e229f8a"
+      apiKey: "AIzaSyBgm8A_COxowHNjETWtf61pI5jYEHTnaZc",
+      authDomain: "love-foxee.firebaseapp.com",
+      databaseURL: "https://love-foxee-default-rtdb.firebaseio.com",
+      projectId: "love-foxee",
+      storageBucket: "love-foxee.firebasestorage.app",
+      messagingSenderId: "485043559330",
+      appId: "1:485043559330:web:58bd173b8d43a6ac0eb0fb",
+      measurementId: "G-MG73N1G473"
     };
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const analytics = getAnalytics(app);
     const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    // Make Firebase instances available globally
+    // Make Firebase instances available globally for the main.js file
     window.firebaseAuth = auth;
     window.firebaseDB = db;
   </script>
 </head>
 <body>
-  <div id="chat">
-    <h1>Chat Room</h1>
-    <div id="messages"></div>
-    <input type="text" id="message" placeholder="Type a message...">
-    <button onclick="sendMessage()">Send</button>
-    <div id="typing-status"></div>
+  <div id="chat-container">
+    <h1>Love Foxee Chat</h1>
+    <div id="messages-container">
+      <div id="messages"></div>
+      <div id="typing-status"></div>
+    </div>
+    <div id="input-container">
+      <input type="text" id="message" placeholder="Type your message here..." />
+      <button id="send-button" onclick="sendMessage()">Send</button>
+      <button id="change-username" onclick="changeUsername()">Change Username</button>
+      <input type="file" id="file" style="display: none;" onchange="sendAttachment()" />
+      <button id="upload-button" onclick="document.getElementById('file').click()">Upload</button>
+    </div>
   </div>
   <script type="module" src="main.js"></script>
 </body>
