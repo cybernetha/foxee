@@ -44,14 +44,41 @@ window.sendMessage = function () {
   }
 };
 
+// Send attachment
+window.sendAttachment = function () {
+  const fileInput = document.getElementById("file");
+  const file = fileInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      push(messagesRef, {
+        uid: auth.currentUser.uid,
+        text: event.target.result,
+        type: "attachment",
+        timestamp: Date.now(),
+      });
+      fileInput.value = "";
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 // Display messages
 onChildAdded(messagesRef, (snapshot) => {
-  const { uid, text } = snapshot.val();
+  const { uid, text, type } = snapshot.val();
   const messagesDiv = document.getElementById("messages");
 
   const messageDiv = document.createElement("div");
   messageDiv.className = uid === auth.currentUser.uid ? "message sent" : "message received";
-  messageDiv.textContent = text;
+
+  if (type === "attachment") {
+    const img = document.createElement("img");
+    img.src = text;
+    img.classList.add("message-attachment");
+    messageDiv.appendChild(img);
+  } else {
+    messageDiv.textContent = text;
+  }
 
   if (uid === auth.currentUser.uid) {
     const deleteBtn = document.createElement("button");
