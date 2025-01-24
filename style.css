@@ -79,8 +79,7 @@ header {
 }
 
 img.message-attachment {
-  max-width: 100%;
-  height: auto;
+  max-width: 150px;
   border-radius: 8px;
 }
 
